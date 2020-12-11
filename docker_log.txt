@@ -550,5 +550,66 @@ Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
 $ docker ps -a
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 
+---------------------------------------------------------------------------------
 
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker run --name mysql_container -v /home:/var/lib/mysql -p 3306:3306 -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+docker: Error response from daemon: mkdir C:\Program Files\Git\home;C: Access is denied.
+See 'docker run --help'.
 
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker logs mysql_container
+Error: No such container: mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker run --name mysql_container -v C:/Users/Han/mysql-docker/db:/var/lib/mysql -p 3306:3306 -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+8417a814f3622c9ff295449124884088322b665feb65d7b90f58582abf90d65c
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                               NAMES
+8417a814f362   mysql_docker   "docker-entrypoint.s??   About a minute ago   Up About a minute   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker stop mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS                      PORTS     NAMES
+8417a814f362   mysql_docker   "docker-entrypoint.s??   4 minutes ago   Exited (0) 24 seconds ago             mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker rm mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker run --name mysql_container -v C:/Users/Han/mysql-docker/db:/var/lib/mysql -p 3306:3306 -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+836db89910ca4b5f786dadd0538e005b27acb2c45a9d099fd032f534d0df0864
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker stop mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker rm mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker (master)
+$

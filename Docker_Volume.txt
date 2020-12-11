@@ -1,0 +1,253 @@
+
+
+Connect to MySQL running in Docker container from a local machine
+
+https://towardsdatascience.com/connect-to-mysql-running-in-docker-container-from-a-local-machine-6d996c574e55
+
+Now, you can connect to the container’s interactive bash shell with the following command:
+
+λ docker exec -it mk-mysql bash
+bash-4.2#
+
+Once you are inside your container, you can connect to your MySQL server and create a new Database as follows:
+bash-4.2# mysql -u root -p
+Enter password:
+...
+mysql> CREATE DATABASE MYSQLTEST;
+Query OK, 1 row affected (0.00 sec)
+
+
+
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker run --name mysql_container -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+aff8d1320679a9f7a000335f793f9a4e42397a26c0690c9be2223e5fabcdc830
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                 NAMES
+aff8d1320679   mysql_docker   "docker-entrypoint.s??   16 seconds ago   Up 14 seconds   3306/tcp, 33060/tcp   mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker exec -it mysql_container bash
+the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ winpty docker exec -it mysql_container bash
+root@aff8d1320679:/# ipconfig
+bash: ipconfig: command not found
+root@aff8d1320679:/# ifconfig
+bash: ifconfig: command not found
+root@aff8d1320679:/# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.22 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| docker_test        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> exit
+Bye
+root@aff8d1320679:/# ls
+bin   dev                         entrypoint.sh  home  lib64  mnt  proc  run   srv      sys  usr
+boot  docker-entrypoint-initdb.d  etc            lib   media  opt  root  sbin  storage  tmp  var
+root@aff8d1320679:/# echo "hello" > /storage/hello.txt
+root@aff8d1320679:/# cat /storage/hello.txt
+hello
+root@aff8d1320679:/#
+root@aff8d1320679:/# exit
+exit
+
+
+
+
+Locating data volumes in Docker Desktop (Windows)
+
+https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows
+
+
+I'm on Windows + WSL 2 (Ubuntu 18.04), Docker v19.03. I found my Docker volumes in this location, type in the Windows file explorer :
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
+You will have one direcotory per volume.
+
+
+
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2\_data\hello.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://docs.docker.com/storage/volumes/
+
+
+
+https://ithelp.ithome.com.tw/articles/10192397
+
+DevOps 用30天來介紹和使用 Docker系列 第 17 篇
+Day17：使用 Docker Volume 的功能 (一)
+2018鐵人賽
+ 
+yangj26952
+團隊就是有亦思
+2017-12-20 09:21:58
+31171 瀏覽
+
+之前有說明過在執行 Docker Container 的時侯檔案系統會分為 Image 層、Init 層以及可讀可寫層這三個部份，當 Docker Container 刪除掉之後，存放在 Docker Container 上的資料也就會跟著刪除掉，因此需要把不想要被刪除掉的資料存放在實體機器上，避免資料不見的問題。
+
+主要實作如何使用 Docker 的 Volume 功能，把資料寫入到實體機器上，主要的方式有二個方法：
+
+在執行 docker run 指令時加上 -v 參數，使得 Container 裡面的檔案路徑Mapping 到實體主機的檔案路徑。
+
+在撰寫 Dockerfile 時，加入 VOLUME 指令，做到把資料存放在實體的主機上。使用這種方法需要搭配 docker inspect 指令，才能查詢到實體主機檔案的存放路徑在哪。(這個明天會做介紹)
+
+Example1：
+在使用 docker run 指令時，指定 -v 參數，使得實體主機的資料夾路徑 Mapping 到 Container 的資料夾路徑，指令如下
+
+$ docker run -it -v /home/user1/storage:/storage centos /bin/bash
+/home/user1/storage 是實體主機的資料夾路徑 Mapping 到 Container 裡面的 /storage 資料夾路徑。
+
+執行畫面如下：
+https://ithelp.ithome.com.tw/upload/images/20171220/201034568VBqsahBBQ.png
+
+我們就會在上個畫面中的左邊視窗看到執行 docker run 指令時使用 -v參數 Mapping 到實體主機的 /home/user1/storage 的資料夾。然後在右邊視窗中的實體主機 /home/user1/storage 的資料夾建立一個 helloworld.txt 的檔案，最後再回到左邊視窗的 Container 裡面的 /storage 資料夾去看 helloworld.txt 的檔案已經存在了。
+
+Example2：
+在使用 docker run 指令時，指定 -v參數，但是沒有指定實體主機的檔案路徑，指令如下
+
+$ docker run -it -v /storage centos /bin/bash
+使用以上的指令會發現到沒有指定實體主機的資料夾路徑，那資料會跑到哪裡去了呢？
+要回答這個答案之前需要先使用 docker volume ls 可以看到如下的畫面
+https://ithelp.ithome.com.tw/upload/images/20171220/20103456hggPfYWnav.png
+
+上圖就是一個 Container 的 Volume，如果要找到在實體主機真實的資料夾路徑，可以使用以下的指令：
+
+$ docker inspect -f '{{.Mounts}}' 4c2a9ef663c2
+4c2a9ef663c2 是 Container 的 ID
+執行畫面如下
+https://ithelp.ithome.com.tw/upload/images/20171220/20103456FnOfepvS4Q.png
+
+上圖就可以找到 Volume 在實體主機的真實路徑，這時侯就可以使用 cd command 切進上圖查詢出來的資料夾路徑並且寫入一個檔案在此資料夾，但是要注意使用者權限的問題，這裡是直接切換成 root 權限，如下圖：
+https://ithelp.ithome.com.tw/upload/images/20171220/20103456a1xW8B8d8a.png
+
+從上圖就可以看到helloworld.txt的檔案有在 container上出現，也就有成功的把 Volume 這個功能執行起來。
+
+今天已經介紹了如何使用 docker run，指令把Container 的資料夾 Mapping 到實體機器上，明天要繼續介紹的部份是透過使用撰寫 Dockerfile 的方式把 Volume 掛載起來。
+
+
+
+
+
+chichi
+iT邦新手 5 級 ‧ 2018-01-12 19:30:34
+
+docker run -it -v /home/user1/storage:/storage centos /bin/bash
+
+想問 :/storage 這資料夾是 centos image 存在的資料夾 ?
+
+回應 2檢舉
+
+yangj26952 iT邦新手 4 級 ‧ 2018-01-13 13:40:13
+
+:/storage 不是 CentOS Image 存在的資料夾，是因為啟動 docker container 時使用了 -v 參數之後會自動在 container 裡建立 /storage 的資料夾。
+
+
+chichi iT邦新手 5 級 ‧ 2018-01-13 14:15:34
+
+感謝，困惑很久了。
+
+
+
+
+
+
+https://ithelp.ithome.com.tw/articles/10192703
+
+
+DevOps 用30天來介紹和使用 Docker系列 第 18 篇
+Day18：使用 Docker Volume 的功能 (二)
+2018鐵人賽
+ 
+yangj26952
+團隊就是有亦思
+2017-12-21 09:26:20
+17676 瀏覽
+
+昨天已經介紹了如何使用在執行 docker run 指令，把 Volume Mount 起來使得 Container 的資料夾路徑可以 Mapping 到實體主機的資料夾路徑，今天要介紹的部份是透過撰寫 Dockerfile 的方式使用 Volume 的指令，這樣使用者就不用在執行 docker run 指令時指定 -v 參數，就可以把 Volume Mount 起來。
+
+另外今天還會 Demo 如何讓 Container 之間的資料共享
+
+Example1：
+撰寫一個 Dockerfile 使用 VOLUME 指令，把 Docker的Image Build起來，然後啟動 Docker Container，把資料寫進在 Docker Container裡面，最後使用 docker inspect 指令，找到 Mapping 到實體主機的資料夾路徑，確認是否有看到之前寫在 Container 裡面的檔案。
+
+Dockerfile 如下
+FROM centos
+VOLUME ["/storage"]
+另外在 VOLUME 指令的寫法可以寫成多個路徑，如下
+
+VOLUME ["/storage1", "/storage2", "/storage2"]
+Build Image 指令如下
+$ docker build -t volumetest .
+輸入 docker build 指令時，資料夾要切換到和 Dockerfile 檔案同一層的資料夾路徑，Build 完 Image 之後的結果如下畫面
+https://ithelp.ithome.com.tw/upload/images/20171221/20103456ssdXOPASlT.png
+
+啟動 Docker Container 指令如下
+$ docker run -it volumetest /bin/bash
+因為 VOLUME 已經寫在 Dockerfile 裡，所以在使用 docker run 指令時沒有給 -v 參數
+
+在 Container 裡面寫入一個檔案，如下畫面
+https://ithelp.ithome.com.tw/upload/images/20171221/20103456qE64sS2rSY.png
+
+在實體主機上使用 docker inspect 指令，找到 Volume 在實體主機的資料夾路徑
+https://ithelp.ithome.com.tw/upload/images/20171221/2010345681g1gdCrYx.png
+
+e2987aaab700 為 ContainerID，也可以使用指定 Container Name 的方式
+
+使用 root 權限，切換到 Volume 的實體主機的資料夾路徑之後，可以看到在第4步驟在 Container 裡面寫的檔案，也可以在實體主機的資料夾看到 helloworld.txt 的檔案，畫面如下
+https://ithelp.ithome.com.tw/upload/images/20171221/20103456ufZiv553yq.png
+Example2：
+如何讓 Container 和 Container 之間的資料共享，可以使用以下的方式
+
+啟動第一個 Container 指令如下
+$ docker run -it -v /data --name=container1 centos /bin/bash
+啟動第二個 Container 指令如下
+$ docker run -it --volumes-from container1 --name=container2 centos /bin/bash
+--volumes-from 參數指定 Container Name 為 Container1 的 Volume 資料和Container2 做共享
+
+測試二個 Container 之間資料是否能共享，畫面如下
+https://ithelp.ithome.com.tw/upload/images/20171221/20103456EjWytkm8Hw.png
+左邊的 Container1 切換到 /data 資料夾之後建立一個 helloworld.txt 的檔案，之後在右邊的 Container2 切換到 /data 資料夾之後查看 helloworld.txt 的檔案內容為 HELLOWORLD，這樣就代表了 Container 之間的資料有做到共享的效果。
+
+今天介紹了 Dockerfile Volume 的用法以及 Container 之間的資料做共享，不用另外的架設 file server 就可以分享資料，使資料在使用上更加的方便，對於在備份資料方面也更加的簡單。
+
+

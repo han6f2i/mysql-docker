@@ -1,0 +1,206 @@
+
+
+
+
+
+
+
+
+https://ithelp.ithome.com.tw/articles/10192397
+
+DevOps 用30天來介紹和使用 Docker系列 第 17 篇
+Day17：使用 Docker Volume 的功能 (一)
+
+
+chichi
+iT邦新手 5 級 ‧ 2018-01-12 19:30:34
+
+docker run -it -v /home/user1/storage:/storage centos /bin/bash
+
+想問 :/storage 這資料夾是 centos image 存在的資料夾 ?
+
+回應 2檢舉
+
+yangj26952 iT邦新手 4 級 ‧ 2018-01-13 13:40:13
+
+:/storage 不是 CentOS Image 存在的資料夾，是因為啟動 docker container 時使用了 -v 參數之後會自動在 container 裡建立 /storage 的資料夾。
+
+
+chichi iT邦新手 5 級 ‧ 2018-01-13 14:15:34
+
+感謝，困惑很久了。
+
+
+
+
+
+
+
+
+Day18：使用 Docker Volume 的功能 (二)
+
+https://ithelp.ithome.com.tw/articles/10192703
+
+Example1：
+撰寫一個 Dockerfile 使用 VOLUME 指令，把 Docker的Image Build起來，然後啟動 Docker Container，把資料寫進在 Docker Container裡面，最後使用 docker inspect 指令，找到 Mapping 到實體主機的資料夾路徑，確認是否有看到之前寫在 Container 裡面的檔案。
+
+Dockerfile 如下
+
+FROM centos
+VOLUME ["/storage"]
+
+另外在 VOLUME 指令的寫法可以寫成多個路徑，如下
+
+VOLUME ["/storage1", "/storage2", "/storage2"]
+
+
+
+4. 在 Container 裡面寫入一個檔案，如下畫面
+
+5. 在實體主機上使用 docker inspect 指令，找到 Volume 在實體主機的資料夾路徑
+
+
+
+
+
+Connect to MySQL running in Docker container from a local machine
+
+
+https://towardsdatascience.com/connect-to-mysql-running-in-docker-container-from-a-local-machine-6d996c574e55
+
+The following command will pull the MySQL server version 8.0.20 from the Docker registry and then instantiate a Docker container with the name “mk-mysql.” It will also attach the previously created volume “mysql-volume” with the Database and will expose the port 3306 so that you can reach the MySQL database outside the container:
+
+λ docker run --name=mk-mysql -p3306:3306 -v mysql-volume:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql/mysql-server:8.0.20
+Unable to find image ‘mysql/mysql-server:8.0.20’ locally
+8.0.20: Pulling from mysql/mysql-server
+
+You can check whether the container is running by listing the running containers:
+
+λ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+d54e7992094b mysql/mysql-server:8.0.20 "/entrypoint.sh mysq…" Less than a second ago Up 4 seconds (health: starting) 0.0.0.0:3306->3306/tcp, 33060/tcp mk-mysql
+
+You can also check the log file of the running MySQL container with the following command:
+
+λ docker logs mk-mysql
+
+Now, you can connect to the container’s interactive bash shell with the following command:
+
+λ docker exec -it mk-mysql bash
+bash-4.2#
+
+Once you are inside your container, you can connect to your MySQL server and create a new Database as follows:
+bash-4.2# mysql -u root -p
+Enter password:
+...
+mysql> CREATE DATABASE MYSQLTEST;
+Query OK, 1 row affected (0.00 sec)
+
+
+
+
+
+
+
+
+
+C:\Users\Han\mysql-docker\Dockerfile
+
+FROM mysql
+ENV MYSQL_ROOT_PASSWORD=1927
+ENV MYSQL_DATABASE=docker_test
+ENV MYSQL_USER=springboot
+ENV MYSQL_PASSWORD=springboot
+RUN cat /etc/*release*
+RUN pwd
+RUN ls
+VOLUME ["/storage"]
+#ENTRYPOINT ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker run --name mysql_container -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+aff8d1320679a9f7a000335f793f9a4e42397a26c0690c9be2223e5fabcdc830
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                 NAMES
+aff8d1320679   mysql_docker   "docker-entrypoint.s??   16 seconds ago   Up 14 seconds   3306/tcp, 33060/tcp   mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker exec -it mysql_container bash
+the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ winpty docker exec -it mysql_container bash
+root@aff8d1320679:/# ipconfig
+bash: ipconfig: command not found
+root@aff8d1320679:/# ifconfig
+bash: ifconfig: command not found
+root@aff8d1320679:/# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.22 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| docker_test        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> exit
+Bye
+root@aff8d1320679:/# ls
+bin   dev                         entrypoint.sh  home  lib64  mnt  proc  run   srv      sys  usr
+boot  docker-entrypoint-initdb.d  etc            lib   media  opt  root  sbin  storage  tmp  var
+root@aff8d1320679:/# echo "hello" > /storage/hello.txt
+root@aff8d1320679:/# cat /storage/hello.txt
+hello
+root@aff8d1320679:/#
+root@aff8d1320679:/# exit
+exit
+
+
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~
+$ docker inspect -f '{{.Mounts}}' aff8d1320679
+[{volume ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2 /var/lib/docker/volumes/ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2/_data /storage local  true } {volume 19a590c9dcc6d12d851e25054905a9440cdbbbd67b63902c644b9637703dda37 /var/lib/docker/volumes/19a590c9dcc6d12d851e25054905a9440cdbbbd67b63902c644b9637703dda37/_data /var/lib/mysql local  true }]
+
+
+
+
+
+Locating data volumes in Docker Desktop (Windows)
+
+https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows
+
+
+I'm on Windows + WSL 2 (Ubuntu 18.04), Docker v19.03. I found my Docker volumes in this location, type in the Windows file explorer :
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
+You will have one direcotory per volume.
+
+
+
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2\_data\hello.txt
+
+

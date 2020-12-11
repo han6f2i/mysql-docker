@@ -1,0 +1,422 @@
+mysql-docker example
+
+
+
+
+https://hub.docker.com/_/mysql
+
+Environment Variables
+
+
+https://hub.docker.com/_/mysql
+
+Configuration without a cnf file
+
+Many configuration options can be passed as flags to mysqld. This will give you the flexibility to customize the container without needing a cnf file. For example, if you want to change the default encoding and collation for all tables to use UTF-8 (utf8mb4) just run the following:
+
+$ docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+
+
+
+https://github.com/mysql/mysql-docker/tree/mysql-server/5.7
+
+https://github.com/mysql/mysql-docker/blob/mysql-server/5.7/docker-entrypoint.sh
+
+
+Docker Set Up mysql db environment
+
+https://stackoverflow.com/questions/48299505/docker-set-up-mysql-db-environment
+
+You could set that as environment vars on the server, but if you don't want to do that you could set them for the compose command:
+
+DB_ROOT_PASSWORD=asdf DB_NAME=mydb DB_USERNAME=user DB_PASSWORD=pw docker compose
+In the comments you said that you wanted to set the vars in the Dockerfile. Below is an example:
+
+FROM mysql:latest
+
+ENV MYSQL_ROOT_PASSWORD=asdf
+ENV MYSQL_DATABASE=mydb
+ENV MYSQL_USER=user
+ENV MYSQL_PASSWORD=pw
+If you do not want these hardcoded in the Dockerfile, you could combine them with build time arguments.
+
+FROM mysql:latest
+
+ENV MYSQL_ROOT_PASSWORD=$db_root_pw
+ENV MYSQL_DATABASE=$db_name
+ENV MYSQL_USER=$db_username
+ENV MYSQL_PASSWORD=$db_pw
+Make sure to include the arguments when building the image:
+
+docker build --build-arg db_root_pw=rootpw --build-arg db_name=mydb --build-arg db_username=user --build-arg db_pw=pw # [...]
+
+
+
+
+
+
+https://ithelp.ithome.com.tw/articles/10192397
+
+DevOps 用30天來介紹和使用 Docker系列 第 17 篇
+Day17：使用 Docker Volume 的功能 (一)
+
+
+
+Day18：使用 Docker Volume 的功能 (二)
+
+https://ithelp.ithome.com.tw/articles/10192703
+
+
+
+
+
+
+
+
+
+C:\Users\Han\mysql-docker\Dockerfile
+
+FROM mysql
+ENV MYSQL_ROOT_PASSWORD=1927
+ENV MYSQL_DATABASE=docker_test
+ENV MYSQL_USER springboot
+ENV MYSQL_PASSWORD springboot
+RUN cat /etc/*release*
+RUN pwd
+RUN ls
+VOLUME ["/storage"]
+#ENTRYPOINT ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker build -t mysql_docker .
+Sending build context to Docker daemon  11.78kB
+Step 1/9 : FROM mysql
+ ---> dd7265748b5d
+Step 2/9 : ENV MYSQL_ROOT_PASSWORD=1927
+ ---> Running in 6e69fd1ab7d8
+Removing intermediate container 6e69fd1ab7d8
+ ---> fe86d315c3d2
+Step 3/9 : ENV MYSQL_DATABASE=docker_test
+ ---> Running in 132aa740ffa3
+Removing intermediate container 132aa740ffa3
+ ---> 2ecfac73f4d0
+Step 4/9 : ENV MYSQL_USER springboot
+ ---> Running in 80fd25faeccd
+Removing intermediate container 80fd25faeccd
+ ---> c0f72c1c5c94
+Step 5/9 : ENV MYSQL_PASSWORD springboot
+ ---> Running in 6454b4469ec3
+Removing intermediate container 6454b4469ec3
+ ---> 2262c963d3d6
+Step 6/9 : RUN cat /etc/*release*
+ ---> Running in 39ab03d0517a
+PRETTY_NAME="Debian GNU/Linux 10 (buster)"
+NAME="Debian GNU/Linux"
+VERSION_ID="10"
+VERSION="10 (buster)"
+VERSION_CODENAME=buster
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+Removing intermediate container 39ab03d0517a
+ ---> c4751fd92732
+Step 7/9 : RUN pwd
+ ---> Running in 3159f50657dd
+/
+Removing intermediate container 3159f50657dd
+ ---> 4ec4a08963ac
+Step 8/9 : RUN ls
+ ---> Running in 06dbec6bdbc1
+bin
+boot
+dev
+docker-entrypoint-initdb.d
+entrypoint.sh
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var
+Removing intermediate container 06dbec6bdbc1
+ ---> 282ea9d1e80d
+Step 9/9 : VOLUME ["/storage"]
+ ---> Running in a0af79fc81b5
+Removing intermediate container a0af79fc81b5
+ ---> 20cbe274edc7
+Successfully built 20cbe274edc7
+Successfully tagged mysql_docker:latest
+SECURITY WARNING: You are building a Docker image from Windows against a non-Windows Docker host. All files and directories added to build context will have '-rwxr-xr-x' permissions. It is recommended to double check and reset permissions for sensitive files and directories.
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker images
+REPOSITORY          TAG              IMAGE ID       CREATED          SIZE
+mysql_docker        latest           20cbe274edc7   16 seconds ago   545MB
+mysql               latest           dd7265748b5d   2 weeks ago      545MB
+hellodocker         latest           fe631c5a0d75   4 months ago     721MB
+docker101tutorial   latest           55410b81f8e9   4 months ago     26.8MB
+maven               3.6-openjdk-11   17797f4b714f   4 months ago     639MB
+python              alpine           872c3118ec53   4 months ago     42.7MB
+node                12-alpine        18f4bc975732   4 months ago     89.3MB
+nginx               alpine           ecd67fe340f9   5 months ago     21.6MB
+
+
+
+
+
+
+
+
+https://ithelp.ithome.com.tw/articles/10241810
+
+Dockerfile
+
+EXPOSE : 對外暴露出可使用的 ports，建立的容器如果沒有特別將 ports 暴露出來的話，是無法使用特定 port 的
+
+
+
+
+
+
+https://docs.docker.com/engine/reference/commandline/run/
+
+--publish , -p		Publish a container’s port(s) to the host
+
+--publish-all , -P		Publish all exposed ports to random ports
+
+
+https://docs.docker.com/engine/reference/commandline/run/#usage
+
+Publish or expose port (-p, --expose)
+
+$ docker run -p 127.0.0.1:80:8080/tcp ubuntu bash
+
+This binds port 8080 of the container to TCP port 80 on 127.0.0.1 of the host machine. You can also specify udp and sctp ports. The Docker User Guide explains in detail how to manipulate ports in Docker.
+
+Note that ports which are not bound to the host (i.e., -p 80:80 instead of -p 127.0.0.1:80:80) will be accessible from the outside. This also applies if you configured UFW to block this specific port, as Docker manages his own iptables rules. Read more
+
+$ docker run --expose 80 ubuntu bash
+
+This exposes port 80 of the container without publishing the port to the host system’s interfaces.
+
+
+
+
+docker run --name mysql_container 要記得加 -p 3306:3306
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker run --name mysql_container -p 3306:3306 -d mysql_docker --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+b6a3b63536dbb79c1f6a42ebea901b2538a2d2e5de51d429ba32b600eeac4c5b
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                               NAMES
+b6a3b63536db   mysql_docker   "docker-entrypoint.s??   19 seconds ago   Up 18 seconds   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker logs b6a3b63536db
+2020-12-11 17:29:00+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.22-1debian10 started.
+2020-12-11 17:29:00+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2020-12-11 17:29:00+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.22-1debian10 started.
+
+
+
+
+
+
+Connect to MySQL running in Docker container from a local machine
+
+https://towardsdatascience.com/connect-to-mysql-running-in-docker-container-from-a-local-machine-6d996c574e55
+
+
+You can also check the log file of the running MySQL container with the following command:
+
+$ docker logs mk-mysql
+
+Now, you can connect to the container’s interactive bash shell with the following command:
+
+$ docker exec -it mk-mysql bash
+bash-4.2#
+
+
+
+https://docs.docker.com/engine/reference/commandline/logs/
+
+docker logs
+
+Description
+
+Fetch the logs of a container
+
+Usage
+
+docker logs [OPTIONS] CONTAINER
+
+
+
+
+
+https://docs.docker.com/engine/reference/commandline/exec/
+
+docker exec
+
+Description
+
+Run a command in a running container
+
+Usage
+
+docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+
+
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker exec -it mysql_container bash
+the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ winpty docker exec -it mysql_container bash
+root@aff8d1320679:/# ipconfig
+bash: ipconfig: command not found
+root@aff8d1320679:/# ifconfig
+bash: ifconfig: command not found
+root@aff8d1320679:/# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.22 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| docker_test        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> exit
+Bye
+root@aff8d1320679:/# ls
+bin   dev                         entrypoint.sh  home  lib64  mnt  proc  run   srv      sys  usr
+boot  docker-entrypoint-initdb.d  etc            lib   media  opt  root  sbin  storage  tmp  var
+root@aff8d1320679:/# echo "hello" > /storage/hello.txt
+root@aff8d1320679:/# cat /storage/hello.txt
+hello
+root@aff8d1320679:/# exit
+exit
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker inspect -f '{{.Mounts}}' aff8d1320679
+[{volume 19a590c9dcc6d12d851e25054905a9440cdbbbd67b63902c644b9637703dda37 /var/lib/docker/volumes/19a590c9dcc6d12d851e25054905a9440cdbbbd67b63902c644b9637703dda37/_data /var/lib/mysql local  true } {volume ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2 /var/lib/docker/volumes/ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2/_data /storage local  true }]
+
+
+
+
+
+Locating data volumes in Docker Desktop (Windows)
+
+https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows
+
+
+I'm on Windows + WSL 2 (Ubuntu 18.04), Docker v19.03. I found my Docker volumes in this location, type in the Windows file explorer :
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\
+You will have one direcotory per volume.
+
+
+
+\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\ac0cbf57a02a6728d113a2f2540d076eaa3b2eaf85aab4af4bf1e00ebe6d04d2\_data\hello.txt
+
+
+
+
+
+
+run C:\eclipse-workspace-Test\DockerComposeTest
+
+
+MySQL Workbench :
+
+show databases;
+
+use docker_test;
+
+show tables;
+
+select * from article;
+
+
+
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker stop mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps -a
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS                      PORTS     NAMES
+b6a3b63536db   mysql_docker   "docker-entrypoint.s??   10 minutes ago   Exited (0) 39 seconds ago             mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker rm mysql_container
+mysql_container
+
+Han@DESKTOP-H0MOQCV MINGW64 ~/mysql-docker
+$ docker ps -a
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+
+
+
+
+https://docs.docker.com/engine/reference/commandline/ps/
+
+docker ps
+
+Description
+List containers
+
+Usage
+docker ps [OPTIONS]
+For example uses of this command, refer to the examples section below.
+
+Options🔗
+Name, shorthand	Default	Description
+--all , -a		Show all containers (default shows just running)
+
+
